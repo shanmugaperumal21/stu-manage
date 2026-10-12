@@ -1,0 +1,82 @@
+
+<!DOCTYPE html>
+<html ng-app="studentApp">
+<head>
+  <title>Student Management</title>
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
+</head>
+
+<body ng-controller="StudentController">
+
+  <h2>Student Management System</h2>
+
+  <form ng-submit="addStudent()">
+    <input ng-model="student.name"
+           placeholder="Student Name" required>
+
+    <input ng-model="student.regNo"
+           placeholder="Register Number" required>
+
+    <input ng-model="student.department"
+           placeholder="Department" required>
+
+    <button type="submit">Add Student</button>
+  </form>
+
+  <h3>Student List</h3>
+
+  <table border="1">
+    <tr>
+      <th>Name</th>
+      <th>Register Number</th>
+      <th>Department</th>
+      <th>Action</th>
+    </tr>
+
+    <tr ng-repeat="s in students">
+      <td>{{s.name}}</td>
+      <td>{{s.regNo}}</td>
+      <td>{{s.department}}</td>
+      <td>
+        <button type="button" ng-click="deleteStudent(s._id)">
+          Delete
+        </button>
+      </td>
+    </tr>
+  </table>
+
+  <script>
+    var app = angular.module("studentApp", []);
+
+    app.controller("StudentController", function($scope, $http) {
+
+      $scope.student = {};
+      $scope.students = [];
+
+      $scope.loadStudents = function() {
+        $http.get("/api/students").then(function(response) {
+          $scope.students = response.data;
+        });
+      };
+
+      $scope.addStudent = function() {
+        $http.post("/api/students", $scope.student)
+          .then(function() {
+            $scope.student = {};
+            $scope.loadStudents();
+          });
+      };
+
+      $scope.deleteStudent = function(id) {
+        $http.delete("/api/students/" + id)
+          .then(function() {
+            $scope.loadStudents();
+          });
+      };
+
+      $scope.loadStudents();
+    });
+  </script>
+
+</body>
+</html>
